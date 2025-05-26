@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Upload, Camera, ImageIcon, Crown, Sparkles, User, History, Palette } from 'lucide-react';
+import { Upload, Camera, ImageIcon, Crown, Sparkles, User, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -56,9 +56,9 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex flex-col">
-      <div className="flex-1 p-4">
+      <div className="flex-1 pb-20">
         <Tabs defaultValue="generate" className="max-w-md mx-auto h-full flex flex-col">
-          <TabsContent value="generate" className="flex-1 space-y-6">
+          <TabsContent value="generate" className="flex-1 space-y-6 p-4">
             {/* Header */}
             <div className="text-center py-6">
               <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
@@ -199,35 +199,35 @@ const HomePage = () => {
             </div>
           </TabsContent>
 
-          <TabsContent value="adjust" className="flex-1 flex items-center justify-center">
-            <div className="text-center text-gray-500">
-              <Palette className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <h3 className="font-medium mb-2">智能调优</h3>
-              <p className="text-sm">上传照片并选择风格后可使用</p>
+          <TabsContent value="profile" className="flex-1 p-4">
+            <div className="max-w-md mx-auto">
+              <div className="text-center py-8">
+                <User className="w-16 h-16 mx-auto mb-4 text-purple-600" />
+                <h2 className="text-xl font-semibold mb-2">个人中心</h2>
+                <p className="text-gray-600 mb-6">管理您的账户和生成历史</p>
+                <Button 
+                  onClick={() => navigate('/profile')}
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                >
+                  进入个人中心
+                </Button>
+              </div>
             </div>
           </TabsContent>
+        </Tabs>
+      </div>
 
-          <TabsContent value="gallery" className="flex-1 flex items-center justify-center">
-            <div className="text-center text-gray-500">
-              <User className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <h3 className="font-medium mb-2">我的画廊</h3>
-              <p className="text-sm">生成的作品将在这里展示</p>
-            </div>
-          </TabsContent>
-
-          {/* Bottom Tab Navigation */}
-          <TabsList className="grid w-full grid-cols-3 bg-white border-t border-gray-200 rounded-none h-16 mt-4">
-            <TabsTrigger value="generate" className="flex flex-col items-center space-y-1 data-[state=active]:bg-purple-50">
+      {/* Fixed Bottom Tab Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+        <Tabs defaultValue="generate" className="max-w-md mx-auto">
+          <TabsList className="grid w-full grid-cols-2 bg-transparent rounded-none h-16">
+            <TabsTrigger value="generate" className="flex flex-col items-center space-y-1 data-[state=active]:bg-purple-50 data-[state=active]:text-purple-600">
               <Sparkles className="w-5 h-5" />
               <span className="text-xs">生成</span>
             </TabsTrigger>
-            <TabsTrigger value="adjust" className="flex flex-col items-center space-y-1 data-[state=active]:bg-purple-50">
-              <Palette className="w-5 h-5" />
-              <span className="text-xs">调优</span>
-            </TabsTrigger>
-            <TabsTrigger value="gallery" className="flex flex-col items-center space-y-1 data-[state=active]:bg-purple-50">
+            <TabsTrigger value="profile" className="flex flex-col items-center space-y-1 data-[state=active]:bg-purple-50 data-[state=active]:text-purple-600">
               <User className="w-5 h-5" />
-              <span className="text-xs">画廊</span>
+              <span className="text-xs">我的</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -268,7 +268,6 @@ const HomePage = () => {
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
               onClick={() => {
                 setShowUpgradeDialog(false);
-                // 这里可以添加支付逻辑
                 console.log('处理支付');
               }}
             >

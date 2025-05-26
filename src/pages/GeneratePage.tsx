@@ -1,10 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Download, RefreshCw, Palette, Sparkles, Crown, Home, User } from 'lucide-react';
+import { ArrowLeft, Download, RefreshCw, Sparkles, Crown, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -17,8 +16,6 @@ const GeneratePage = () => {
   const [isGenerating, setIsGenerating] = useState(true);
   const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [originalImage, setOriginalImage] = useState<string>('');
-  const [cuteness, setCuteness] = useState([75]);
-  const [saturation, setSaturation] = useState([80]);
   
   // Get file and style from navigation state
   const { file, style } = location.state || {};
@@ -160,15 +157,15 @@ const GeneratePage = () => {
           </h2>
         </div>
         <Button variant="ghost" onClick={() => navigate('/profile')}>
-          历史
+          我的
         </Button>
       </div>
 
       {/* Main Content with Tabs */}
-      <div className="flex-1 p-4">
+      <div className="flex-1 pb-20">
         <Tabs defaultValue="generate" className="h-full flex flex-col">
           {/* Tab Content */}
-          <div className="flex-1 max-w-md mx-auto space-y-6">
+          <div className="flex-1 max-w-md mx-auto space-y-6 p-4">
             <TabsContent value="generate" className="space-y-6 mt-0">
               {/* Progress Section */}
               {isGenerating && (
@@ -277,107 +274,34 @@ const GeneratePage = () => {
               )}
             </TabsContent>
 
-            <TabsContent value="adjust" className="space-y-6 mt-0">
-              {/* Adjustment Controls */}
-              <Card>
-                <CardContent className="p-4 space-y-4">
-                  <h3 className="font-medium flex items-center">
-                    <Palette className="w-4 h-4 mr-2" />
-                    智能调优
-                  </h3>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span>萌系指数</span>
-                        <span>{cuteness[0]}%</span>
-                      </div>
-                      <Slider
-                        value={cuteness}
-                        onValueChange={setCuteness}
-                        max={100}
-                        step={1}
-                        className="w-full"
-                      />
-                    </div>
-
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span>色彩饱和度</span>
-                        <span>{saturation[0]}%</span>
-                      </div>
-                      <Slider
-                        value={saturation}
-                        onValueChange={setSaturation}
-                        max={100}
-                        step={1}
-                        className="w-full"
-                      />
-                    </div>
-                  </div>
-
-                  <Button 
-                    className="w-full mt-4"
-                    onClick={() => {
-                      toast({
-                        title: "参数已更新",
-                        description: "重新生成图片以应用新的调优参数",
-                      });
-                    }}
-                  >
-                    应用调整并重新生成
-                  </Button>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="gallery" className="space-y-6 mt-0">
-              {/* Generated Images Gallery */}
-              <Card>
-                <CardContent className="p-4">
-                  <h3 className="font-medium mb-4">生成历史</h3>
-                  <div className="grid grid-cols-2 gap-3">
-                    {generatedImages.map((image, index) => (
-                      <div key={index} className="aspect-square rounded-lg overflow-hidden bg-gray-100 relative">
-                        <img 
-                          src={image} 
-                          alt={`Generated ${index + 1}`} 
-                          className="w-full h-full object-cover"
-                        />
-                        <Button
-                          size="sm"
-                          className="absolute bottom-2 right-2 h-8 w-8 p-0"
-                          onClick={() => handleDownload(image)}
-                        >
-                          <Download className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                    {generatedImages.length === 0 && (
-                      <div className="col-span-2 text-center py-8 text-gray-500">
-                        <User className="w-12 h-12 mx-auto mb-2 opacity-50" />
-                        <p>暂无生成记录</p>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+            <TabsContent value="profile" className="space-y-6 mt-0">
+              <div className="text-center py-8">
+                <User className="w-16 h-16 mx-auto mb-4 text-purple-600" />
+                <h2 className="text-xl font-semibold mb-2">个人中心</h2>
+                <p className="text-gray-600 mb-6">管理您的账户和生成历史</p>
+                <Button 
+                  onClick={() => navigate('/profile')}
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                >
+                  进入个人中心
+                </Button>
+              </div>
             </TabsContent>
           </div>
+        </Tabs>
+      </div>
 
-          {/* Bottom Tab Navigation */}
-          <TabsList className="grid w-full grid-cols-3 bg-white border-t border-gray-200 rounded-none h-16 mt-4">
-            <TabsTrigger value="generate" className="flex flex-col items-center space-y-1 data-[state=active]:bg-purple-50">
+      {/* Fixed Bottom Tab Navigation */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50">
+        <Tabs defaultValue="generate" className="max-w-md mx-auto">
+          <TabsList className="grid w-full grid-cols-2 bg-transparent rounded-none h-16">
+            <TabsTrigger value="generate" className="flex flex-col items-center space-y-1 data-[state=active]:bg-purple-50 data-[state=active]:text-purple-600">
               <Sparkles className="w-5 h-5" />
               <span className="text-xs">生成</span>
             </TabsTrigger>
-            <TabsTrigger value="adjust" className="flex flex-col items-center space-y-1 data-[state=active]:bg-purple-50">
-              <Palette className="w-5 h-5" />
-              <span className="text-xs">调优</span>
-            </TabsTrigger>
-            <TabsTrigger value="gallery" className="flex flex-col items-center space-y-1 data-[state=active]:bg-purple-50">
+            <TabsTrigger value="profile" className="flex flex-col items-center space-y-1 data-[state=active]:bg-purple-50 data-[state=active]:text-purple-600">
               <User className="w-5 h-5" />
-              <span className="text-xs">画廊</span>
+              <span className="text-xs">我的</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
