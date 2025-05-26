@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Download, RefreshCw, Palette, Sparkles, Crown } from 'lucide-react';
+import { ArrowLeft, Download, RefreshCw, Palette, Sparkles, Crown, Home, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -115,7 +115,7 @@ const GeneratePage = () => {
   const styleInfo = getStyleInfo(style);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-white shadow-sm">
         <Button variant="ghost" onClick={() => navigate('/')}>
@@ -133,143 +133,200 @@ const GeneratePage = () => {
         </Button>
       </div>
 
-      <div className="p-4 space-y-6 max-w-md mx-auto">
-        {/* Progress Section */}
-        {isGenerating && (
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-center space-y-3">
-                <Sparkles className="w-8 h-8 mx-auto text-purple-600 animate-spin" />
-                <h3 className="font-medium">AI正在生成您的专属头像...</h3>
-                <Progress value={progress} className="w-full" />
-                <p className="text-sm text-gray-600">{Math.round(progress)}% 完成</p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+      {/* Main Content with Tabs */}
+      <div className="flex-1 p-4">
+        <Tabs defaultValue="generate" className="h-full flex flex-col">
+          {/* Tab Content */}
+          <div className="flex-1 max-w-md mx-auto space-y-6">
+            <TabsContent value="generate" className="space-y-6 mt-0">
+              {/* Progress Section */}
+              {isGenerating && (
+                <Card>
+                  <CardContent className="p-4">
+                    <div className="text-center space-y-3">
+                      <Sparkles className="w-8 h-8 mx-auto text-purple-600 animate-spin" />
+                      <h3 className="font-medium">AI正在生成您的专属头像...</h3>
+                      <Progress value={progress} className="w-full" />
+                      <p className="text-sm text-gray-600">{Math.round(progress)}% 完成</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
-        {/* Image Comparison */}
-        <div className="grid grid-cols-2 gap-4">
-          {/* Original Image */}
-          <Card>
-            <CardContent className="p-3">
-              <h4 className="text-sm font-medium mb-2 text-center">原图</h4>
-              <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
-                {originalImage && (
-                  <img 
-                    src={originalImage} 
-                    alt="Original" 
-                    className="w-full h-full object-cover"
-                  />
-                )}
-              </div>
-            </CardContent>
-          </Card>
+              {/* Image Comparison */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Original Image */}
+                <Card>
+                  <CardContent className="p-3">
+                    <h4 className="text-sm font-medium mb-2 text-center">原图</h4>
+                    <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                      {originalImage && (
+                        <img 
+                          src={originalImage} 
+                          alt="Original" 
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
 
-          {/* Generated Image */}
-          <Card>
-            <CardContent className="p-3">
-              <h4 className="text-sm font-medium mb-2 text-center">生成图</h4>
-              <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                {isGenerating ? (
-                  <div className="text-center">
-                    <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                    <p className="text-xs text-gray-500 mt-2">生成中...</p>
-                  </div>
-                ) : generatedImage ? (
-                  <img 
-                    src={generatedImage} 
-                    alt="Generated" 
-                    className="w-full h-full object-cover"
-                  />
-                ) : null}
+                {/* Generated Image */}
+                <Card>
+                  <CardContent className="p-3">
+                    <h4 className="text-sm font-medium mb-2 text-center">生成图</h4>
+                    <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                      {isGenerating ? (
+                        <div className="text-center">
+                          <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                          <p className="text-xs text-gray-500 mt-2">生成中...</p>
+                        </div>
+                      ) : generatedImage ? (
+                        <img 
+                          src={generatedImage} 
+                          alt="Generated" 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : null}
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
-        </div>
 
-        {/* Adjustment Controls */}
-        {!isGenerating && (
-          <Card>
-            <CardContent className="p-4 space-y-4">
-              <h3 className="font-medium flex items-center">
-                <Palette className="w-4 h-4 mr-2" />
-                智能调优
-              </h3>
-              
-              <div className="space-y-3">
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>萌系指数</span>
-                    <span>{cuteness[0]}%</span>
-                  </div>
-                  <Slider
-                    value={cuteness}
-                    onValueChange={setCuteness}
-                    max={100}
-                    step={1}
+              {/* Action Buttons */}
+              {!isGenerating && (
+                <div className="space-y-3">
+                  <Button 
+                    onClick={handleRegenerate}
+                    variant="outline"
                     className="w-full"
-                  />
-                </div>
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    重新生成
+                  </Button>
 
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span>色彩饱和度</span>
-                    <span>{saturation[0]}%</span>
+                  <Button 
+                    onClick={handleDownload}
+                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    {styleInfo.isPremium ? '付费下载高清图' : '下载高清图'}
+                  </Button>
+
+                  {styleInfo.isPremium && (
+                    <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
+                      <CardContent className="p-3">
+                        <div className="text-center space-y-2">
+                          <Crown className="w-6 h-6 mx-auto text-yellow-600" />
+                          <p className="text-sm font-medium text-yellow-800">
+                            该风格为付费内容
+                          </p>
+                          <p className="text-xs text-yellow-700">
+                            开通会员享受无限生成特权
+                          </p>
+                          <Button size="sm" className="bg-yellow-600 hover:bg-yellow-700">
+                            立即开通会员
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="adjust" className="space-y-6 mt-0">
+              {/* Adjustment Controls */}
+              <Card>
+                <CardContent className="p-4 space-y-4">
+                  <h3 className="font-medium flex items-center">
+                    <Palette className="w-4 h-4 mr-2" />
+                    智能调优
+                  </h3>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>萌系指数</span>
+                        <span>{cuteness[0]}%</span>
+                      </div>
+                      <Slider
+                        value={cuteness}
+                        onValueChange={setCuteness}
+                        max={100}
+                        step={1}
+                        className="w-full"
+                      />
+                    </div>
+
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span>色彩饱和度</span>
+                        <span>{saturation[0]}%</span>
+                      </div>
+                      <Slider
+                        value={saturation}
+                        onValueChange={setSaturation}
+                        max={100}
+                        step={1}
+                        className="w-full"
+                      />
+                    </div>
                   </div>
-                  <Slider
-                    value={saturation}
-                    onValueChange={setSaturation}
-                    max={100}
-                    step={1}
-                    className="w-full"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
-        {/* Action Buttons */}
-        {!isGenerating && (
-          <div className="space-y-3">
-            <Button 
-              onClick={handleRegenerate}
-              variant="outline"
-              className="w-full"
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              重新生成
-            </Button>
+                  <Button className="w-full mt-4">
+                    应用调整
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
 
-            <Button 
-              onClick={handleDownload}
-              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              {styleInfo.isPremium ? '付费下载高清图' : '下载高清图'}
-            </Button>
-
-            {styleInfo.isPremium && (
-              <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
-                <CardContent className="p-3">
-                  <div className="text-center space-y-2">
-                    <Crown className="w-6 h-6 mx-auto text-yellow-600" />
-                    <p className="text-sm font-medium text-yellow-800">
-                      该风格为付费内容
-                    </p>
-                    <p className="text-xs text-yellow-700">
-                      开通会员享受无限生成特权
-                    </p>
-                    <Button size="sm" className="bg-yellow-600 hover:bg-yellow-700">
-                      立即开通会员
-                    </Button>
+            <TabsContent value="gallery" className="space-y-6 mt-0">
+              {/* Generated Images Gallery */}
+              <Card>
+                <CardContent className="p-4">
+                  <h3 className="font-medium mb-4">生成结果</h3>
+                  <div className="grid grid-cols-2 gap-3">
+                    {generatedImage && (
+                      <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                        <img 
+                          src={generatedImage} 
+                          alt="Generated 1" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                      <span className="text-xs text-gray-400">待生成</span>
+                    </div>
+                    <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                      <span className="text-xs text-gray-400">待生成</span>
+                    </div>
+                    <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
+                      <span className="text-xs text-gray-400">待生成</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
-            )}
+            </TabsContent>
           </div>
-        )}
+
+          {/* Bottom Tab Navigation */}
+          <TabsList className="grid w-full grid-cols-3 bg-white border-t border-gray-200 rounded-none h-16 mt-4">
+            <TabsTrigger value="generate" className="flex flex-col items-center space-y-1 data-[state=active]:bg-purple-50">
+              <Sparkles className="w-5 h-5" />
+              <span className="text-xs">生成</span>
+            </TabsTrigger>
+            <TabsTrigger value="adjust" className="flex flex-col items-center space-y-1 data-[state=active]:bg-purple-50">
+              <Palette className="w-5 h-5" />
+              <span className="text-xs">调优</span>
+            </TabsTrigger>
+            <TabsTrigger value="gallery" className="flex flex-col items-center space-y-1 data-[state=active]:bg-purple-50">
+              <User className="w-5 h-5" />
+              <span className="text-xs">画廊</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
       </div>
     </div>
   );
