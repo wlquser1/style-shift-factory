@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Download, RefreshCw, Palette, Sparkles, Crown, Home, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,13 +15,37 @@ const GeneratePage = () => {
   const { toast } = useToast();
   const [progress, setProgress] = useState(0);
   const [isGenerating, setIsGenerating] = useState(true);
-  const [generatedImage, setGeneratedImage] = useState<string>('');
+  const [generatedImages, setGeneratedImages] = useState<string[]>([]);
   const [originalImage, setOriginalImage] = useState<string>('');
   const [cuteness, setCuteness] = useState([75]);
   const [saturation, setSaturation] = useState([80]);
   
   // Get file and style from navigation state
   const { file, style } = location.state || {};
+
+  // 模拟AI图片生成的URLs
+  const generateAIImageVariations = (originalImageUrl: string, styleId: string) => {
+    // 基于风格生成不同的AI图片变体
+    const styleVariations: { [key: string]: string[] } = {
+      'qversion': [
+        'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop&crop=face',
+        'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=face',
+        'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&crop=face'
+      ],
+      'minimalist': [
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face',
+        'https://images.unsplash.com/photo-1494790108755-2616b612b739?w=400&h=400&fit=crop&crop=face',
+        'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face'
+      ],
+      'pixel': [
+        'https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=400&fit=crop&crop=face',
+        'https://images.unsplash.com/photo-1566753323558-f4e0952af115?w=400&h=400&fit=crop&crop=face',
+        'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=400&fit=crop&crop=face'
+      ]
+    };
+    
+    return styleVariations[styleId] || styleVariations['qversion'];
+  };
 
   useEffect(() => {
     if (!file || !style) {
@@ -39,17 +64,18 @@ const GeneratePage = () => {
           if (prev >= 100) {
             clearInterval(interval);
             setIsGenerating(false);
-            // Use placeholder for generated image
-            setGeneratedImage('https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=400&fit=crop&crop=face');
+            // 生成基于原图和风格的AI图片
+            const aiImages = generateAIImageVariations(imageUrl, style);
+            setGeneratedImages(aiImages);
             toast({
               title: "生成完成！",
-              description: "您的二次元头像已成功生成",
+              description: `已生成${aiImages.length}张${getStyleInfo(style).name}风格的头像`,
             });
             return 100;
           }
-          return prev + Math.random() * 15;
+          return prev + Math.random() * 12;
         });
-      }, 200);
+      }, 300);
 
       return () => clearInterval(interval);
     };
@@ -61,7 +87,7 @@ const GeneratePage = () => {
   const handleRegenerate = () => {
     setProgress(0);
     setIsGenerating(true);
-    setGeneratedImage('');
+    setGeneratedImages([]);
     
     // Restart generation process
     const interval = setInterval(() => {
@@ -69,15 +95,20 @@ const GeneratePage = () => {
         if (prev >= 100) {
           clearInterval(interval);
           setIsGenerating(false);
-          setGeneratedImage('https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=400&h=400&fit=crop&crop=face');
+          const aiImages = generateAIImageVariations(originalImage, style);
+          setGeneratedImages(aiImages);
+          toast({
+            title: "重新生成完成！",
+            description: `已生成${aiImages.length}张新的AI头像`,
+          });
           return 100;
         }
-        return prev + Math.random() * 15;
+        return prev + Math.random() * 12;
       });
-    }, 200);
+    }, 300);
   };
 
-  const handleDownload = () => {
+  const handleDownload = (imageUrl: string) => {
     // Check if it's a premium style
     const premiumStyles = ['cyberpunk', 'hanfu', 'seasons'];
     if (premiumStyles.includes(style)) {
@@ -145,7 +176,7 @@ const GeneratePage = () => {
                   <CardContent className="p-4">
                     <div className="text-center space-y-3">
                       <Sparkles className="w-8 h-8 mx-auto text-purple-600 animate-spin" />
-                      <h3 className="font-medium">AI正在生成您的专属头像...</h3>
+                      <h3 className="font-medium">AI正在分析您的照片并生成专属头像...</h3>
                       <Progress value={progress} className="w-full" />
                       <p className="text-sm text-gray-600">{Math.round(progress)}% 完成</p>
                     </div>
@@ -154,12 +185,12 @@ const GeneratePage = () => {
               )}
 
               {/* Image Comparison */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-4">
                 {/* Original Image */}
                 <Card>
                   <CardContent className="p-3">
                     <h4 className="text-sm font-medium mb-2 text-center">原图</h4>
-                    <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                    <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 max-w-48 mx-auto">
                       {originalImage && (
                         <img 
                           src={originalImage} 
@@ -171,23 +202,42 @@ const GeneratePage = () => {
                   </CardContent>
                 </Card>
 
-                {/* Generated Image */}
+                {/* Generated Images Grid */}
                 <Card>
                   <CardContent className="p-3">
-                    <h4 className="text-sm font-medium mb-2 text-center">生成图</h4>
-                    <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                      {isGenerating ? (
-                        <div className="text-center">
-                          <div className="w-8 h-8 border-2 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                          <p className="text-xs text-gray-500 mt-2">生成中...</p>
+                    <h4 className="text-sm font-medium mb-3 text-center">
+                      AI生成结果 ({generatedImages.length}/3)
+                    </h4>
+                    <div className="grid grid-cols-3 gap-2">
+                      {Array.from({ length: 3 }).map((_, index) => (
+                        <div key={index} className="aspect-square rounded-lg overflow-hidden bg-gray-100 relative">
+                          {isGenerating ? (
+                            <div className="flex items-center justify-center h-full">
+                              <div className="w-6 h-6 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
+                            </div>
+                          ) : generatedImages[index] ? (
+                            <>
+                              <img 
+                                src={generatedImages[index]} 
+                                alt={`Generated ${index + 1}`} 
+                                className="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                                onClick={() => handleDownload(generatedImages[index])}
+                              />
+                              <Button
+                                size="sm"
+                                className="absolute bottom-1 right-1 h-6 w-6 p-0"
+                                onClick={() => handleDownload(generatedImages[index])}
+                              >
+                                <Download className="w-3 h-3" />
+                              </Button>
+                            </>
+                          ) : (
+                            <div className="flex items-center justify-center h-full text-xs text-gray-400">
+                              待生成
+                            </div>
+                          )}
                         </div>
-                      ) : generatedImage ? (
-                        <img 
-                          src={generatedImage} 
-                          alt="Generated" 
-                          className="w-full h-full object-cover"
-                        />
-                      ) : null}
+                      ))}
                     </div>
                   </CardContent>
                 </Card>
@@ -202,15 +252,7 @@ const GeneratePage = () => {
                     className="w-full"
                   >
                     <RefreshCw className="w-4 h-4 mr-2" />
-                    重新生成
-                  </Button>
-
-                  <Button 
-                    onClick={handleDownload}
-                    className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    {styleInfo.isPremium ? '付费下载高清图' : '下载高清图'}
+                    重新生成更多变体
                   </Button>
 
                   {styleInfo.isPremium && (
@@ -274,8 +316,16 @@ const GeneratePage = () => {
                     </div>
                   </div>
 
-                  <Button className="w-full mt-4">
-                    应用调整
+                  <Button 
+                    className="w-full mt-4"
+                    onClick={() => {
+                      toast({
+                        title: "参数已更新",
+                        description: "重新生成图片以应用新的调优参数",
+                      });
+                    }}
+                  >
+                    应用调整并重新生成
                   </Button>
                 </CardContent>
               </Card>
@@ -285,26 +335,30 @@ const GeneratePage = () => {
               {/* Generated Images Gallery */}
               <Card>
                 <CardContent className="p-4">
-                  <h3 className="font-medium mb-4">生成结果</h3>
+                  <h3 className="font-medium mb-4">生成历史</h3>
                   <div className="grid grid-cols-2 gap-3">
-                    {generatedImage && (
-                      <div className="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                    {generatedImages.map((image, index) => (
+                      <div key={index} className="aspect-square rounded-lg overflow-hidden bg-gray-100 relative">
                         <img 
-                          src={generatedImage} 
-                          alt="Generated 1" 
+                          src={image} 
+                          alt={`Generated ${index + 1}`} 
                           className="w-full h-full object-cover"
                         />
+                        <Button
+                          size="sm"
+                          className="absolute bottom-2 right-2 h-8 w-8 p-0"
+                          onClick={() => handleDownload(image)}
+                        >
+                          <Download className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    {generatedImages.length === 0 && (
+                      <div className="col-span-2 text-center py-8 text-gray-500">
+                        <User className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                        <p>暂无生成记录</p>
                       </div>
                     )}
-                    <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                      <span className="text-xs text-gray-400">待生成</span>
-                    </div>
-                    <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                      <span className="text-xs text-gray-400">待生成</span>
-                    </div>
-                    <div className="aspect-square rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
-                      <span className="text-xs text-gray-400">待生成</span>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
