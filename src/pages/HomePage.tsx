@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Upload, Camera, ImageIcon, Crown, Sparkles } from 'lucide-react';
+import { Upload, Camera, ImageIcon, Crown, Sparkles, User, History } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -49,8 +48,30 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 p-4">
       <div className="max-w-md mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center py-6">
+        {/* Header with Navigation */}
+        <div className="text-center py-6 relative">
+          <div className="absolute top-6 right-0">
+            <div className="flex space-x-2">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => navigate('/profile')}
+                className="flex items-center space-x-1"
+              >
+                <History className="w-4 h-4" />
+                <span className="text-sm">历史</span>
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => navigate('/profile')}
+                className="flex items-center space-x-1"
+              >
+                <User className="w-4 h-4" />
+                <span className="text-sm">我的</span>
+              </Button>
+            </div>
+          </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
             AI二次元头像工坊
           </h1>
